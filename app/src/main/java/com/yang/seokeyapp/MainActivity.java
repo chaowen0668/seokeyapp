@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         searchBtn.setOnClickListener(this);
         contentTv = (TextView)findViewById(R.id.content);
         webview = (WebView) findViewById(R.id.webview);
+        //ProxyUtils.setProxy(webview,"180.102.153.224",8118);
         // 设置允许加载混合内容
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             webview.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
@@ -94,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
        // connetedVpn();
 
-
+        //webview.loadUrl("http://www.ip138.com");
     }
 
     private void cleanCache(){
@@ -124,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                // webview.loadData(content, "text/html; charset=UTF-8", null);
                webview.loadUrl("https://www.baidu.com/s?wd="+key);
                 parseData(key,target);
-
                 break;
         }
     }

@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/SeoKeyApp.iml" filepath="$PROJECT_DIR$/SeoKeyApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/seokeyapp.iml" filepath="$PROJECT_DIR$/seokeyapp.iml" />
     </modules>
   </component>
 </project>

@@ -24,19 +24,45 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:hint="请输入目标网站，不要带http开头"/>
-     <Button
-         android:id="@+id/searchBtn"
-         android:layout_width="match_parent"
-         android:layout_height="50dp"
-         android:layout_marginLeft="30dp"
-         android:layout_marginRight="30dp"
-         android:text="搜索"
-         android:onClick=""/>
-    <TextView
-        android:id="@+id/content"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/searchBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="搜索"
+            android:onClick=""/>
+        <Button
+            android:id="@+id/getIps"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="获取ip"
+            android:onClick=""/>
+
+        <Button
+            android:id="@+id/testIps"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="当前ip测试"
+            android:onClick=""/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/currentIp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""/>
+        <TextView
+            android:id="@+id/content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""/>
+    </LinearLayout>
+
     <WebView
         android:id="@+id/webview"
         android:layout_width="match_parent"

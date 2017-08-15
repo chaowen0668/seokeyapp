@@ -24,23 +24,38 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.zhouyou.http.EasyHttp;
+import com.zhouyou.http.callback.SimpleCallBack;
+import com.zhouyou.http.exception.ApiException;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
+
 @TargetApi(Build.VERSION_CODES.GINGERBREAD)
 @SuppressLint("NewApi")
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     WebView webview;
     TextView contentTv;
+    TextView currentIpTv;
     EditText et;
     EditText targetEt;
-    Button searchBtn ;
+    Button searchBtn,getIpsBtn,testIpsBtn ;
     int page = 1;
     String baiduSearchUrl = null;
     boolean isFind = false;
+    List<String> ips = new ArrayList<>();
+
+    int ip_index = 0;
+
     @Override
     @SuppressLint("NewApi")
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +73,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         targetEt = (EditText)findViewById(R.id.targetEt);
         searchBtn = (Button)findViewById(R.id.searchBtn);
         searchBtn.setOnClickListener(this);
+        getIpsBtn = (Button)findViewById(R.id.getIps);
+        getIpsBtn.setOnClickListener(this);
+        testIpsBtn = (Button)findViewById(R.id.testIps);
+        testIpsBtn.setOnClickListener(this);
+
         contentTv = (TextView)findViewById(R.id.content);
+        currentIpTv = (TextView)findViewById(R.id.currentIp);
         webview = (WebView) findViewById(R.id.webview);
-        //ProxyUtils.setProxy(webview,"180.102.153.224",8118);
+
         // 设置允许加载混合内容
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             webview.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
@@ -93,9 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 super.onPageFinished(view, url);
             }
         });
-       // connetedVpn();
 
-        //webview.loadUrl("http://www.ip138.com");
     }
 
     private void cleanCache(){
@@ -113,18 +132,65 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()){
+            case R.id.testIps:
+                Random rand = null;
+                int max = ips.size();
+                int randomNum = rand.nextInt((max - 0) + 1) + 0;
+                ProxyUtils.clearProxy(webview);
+                String[] testipp = ips.get(randomNum).split(":");
+                String testippip = testipp[0];
+                String testipphost = testipp[1];
+                ProxyUtils.setProxy(webview,testippip,Integer.parseInt(testipphost));
+                webview.loadUrl("http://www.ip138.com");
+                break;
             case R.id.searchBtn:
-                webview.loadUrl(null);
-                page =1;
-                isFind = false;
-                final String key = et.getText().toString();
-                String target = targetEt.getText().toString();
-                if(TextUtils.isEmpty(key)){
-                    return;
-                }
-               // webview.loadData(content, "text/html; charset=UTF-8", null);
-               webview.loadUrl("https://www.baidu.com/s?wd="+key);
-                parseData(key,target);
+                cleanCache();
+                ProxyUtils.clearProxy(webview);
+                String[] ipp = ips.get(ip_index).split(":");
+                final String ip = ipp[0];
+                String host = ipp[1];
+                ProxyUtils.setProxy(webview,ip,Integer.parseInt(host));
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        currentIpTv.setText("当前ip:"+ip);
+                        webview.loadUrl(null);
+                        page =1;
+                        isFind = false;
+                        final String key = et.getText().toString();
+                        String target = targetEt.getText().toString();
+                        if(TextUtils.isEmpty(key)){
+                            return;
+                        }
+                        webview.loadUrl("https://www.baidu.com/s?wd="+key);
+                        parseData(key,target);
+                        ip_index++;
+                    }
+                },2000);
+
+                break;
+            case R.id.getIps:
+                contentTv.setText("获取ip中");
+                EasyHttp.get("/api/getproxy/?orderid=970268227570024&num=100&b_pcchrome=1&b_pcie=1&b_pcff=1&protocol=1&method=2&an_an=1&an_ha=1&sep=4")
+                        .baseUrl("http://dev.kuaidaili.com")
+                        .readTimeOut(30 * 1000)//局部定义读超时
+                        .writeTimeOut(30 * 1000)
+                        .connectTimeout(30 * 1000)
+                        .timeStamp(true)
+                        .execute(new SimpleCallBack<String>() {
+                            @Override
+                            public void onError(ApiException e) {
+                                contentTv.setText("获取ip错误");
+                                System.out.print("");
+                            }
+
+                            @Override
+                            public void onSuccess(String response) {
+                                String[] ipss =   response.split("\\|");
+                                ips = Arrays.asList(ipss);
+                                contentTv.setText("获到到"+ips.size()+"条ip");
+                            }
+                        });
                 break;
         }
     }
@@ -273,4 +339,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
+
 }

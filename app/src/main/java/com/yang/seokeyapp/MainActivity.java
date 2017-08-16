@@ -30,7 +30,6 @@ import com.zhouyou.http.exception.ApiException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
@@ -147,8 +146,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 cleanCache();
                 ProxyUtils.clearProxy(webview);
                 String[] ipp = ips.get(ip_index).split(":");
-                final String ip = ipp[0];
+               final String ip = ipp[0];
                 String host = ipp[1];
+               /*final String ip = "175.154.84.160";
+                String host = "8118";*/
                 ProxyUtils.setProxy(webview,ip,Integer.parseInt(host));
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -162,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if(TextUtils.isEmpty(key)){
                             return;
                         }
-                        webview.loadUrl("https://www.baidu.com/s?wd="+key);
+                        webview.loadUrl("https://m.baidu.com/s?word="+key);
                         parseData(key,target);
                         ip_index++;
                     }
@@ -205,19 +206,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         if(page == 1){
-            baiduSearchUrl = "https://www.baidu.com/s?wd="+key;
+            baiduSearchUrl = "https://m.baidu.com/s?word="+key;
         }
 
         try {
             Document doc = Jsoup.connect(baiduSearchUrl).get();
-            String content = doc.html().toString();
-            Elements elements = doc.select("div.f13");
+            //String content = doc.html().toString();
+            Elements elements = doc.getElementsByClass("c-showurl c-line-clamp1");
+
 
             for (int i = 0; i < elements.size(); i++) {
                 contentTv.setText("正在搜索第"+page+"页");
                 //打印 <a>标签里面的title
-                String url = elements.get(i).select("a.c-showurl").text();
-                final String baiduurl = elements.get(i).select("a.c-showurl").attr("href");
+                String url = elements.get(i).select("span.c-showurl").text();
+                final String baiduurl = elements.get(i).select("a").attr("href");
                 if(url.contains(target)){
                     isFind = true;
                     runOnUiThread(new Runnable() {
@@ -239,12 +241,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 ++page;
                 if(page <=10){
-                    Element pageElements = doc.getElementById("page");
+                    Elements pageElements = doc.getElementsByClass("new-nextpage-only");
+                    String nextPage = pageElements.get(0).attr("href");
+                    baiduSearchUrl = nextPage;
+                    webview.loadUrl(null);
+                    webview.loadUrl(baiduSearchUrl);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            parseData(key,targetEt.getText().toString());
+                        }
+                    },3000);
+                  /*  Element pageElements = doc.getElementById("page");
                     Elements aelemens = pageElements.select("a");
                     for (int i = 0; i < aelemens.size(); i++) {
                         String nextPage = aelemens.get(i).text();
                         if(nextPage.equals(page+"")){
-                            baiduSearchUrl = "https://www.baidu.com"+aelemens.get(i).attr("href");
+                            baiduSearchUrl = "https://m.baidu.com"+aelemens.get(i).attr("href");
                             webview.loadUrl(null);
                             webview.loadUrl(baiduSearchUrl);
                             new Handler().postDelayed(new Runnable() {
@@ -258,11 +271,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                         Log.i("mytag",aelemens.get(i).text());
 
-                    }
+                    }*/
                 }else{
                         //结束搜索
                         contentTv.setText("找不到目标网站");
-                        webview.loadUrl("https://www.baidu.com");
+                        webview.loadUrl("https://m.baidu.com");
                 }
 
 
